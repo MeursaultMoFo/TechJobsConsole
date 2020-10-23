@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace TechJobsConsole
 {
@@ -42,20 +45,59 @@ namespace TechJobsConsole
         {
             // load data, if not already loaded
             LoadData();
-
+            // Placeholder for job results
             List<Dictionary<string, string>> jobs = new List<Dictionary<string, string>>();
 
-            foreach (Dictionary<string, string> row in AllJobs)
+            foreach (Dictionary<string, string> row in AllJobs) // Grabs one job at a time...
             {
-                string aValue = row[column];
+                string aValue = row[column]; // grabbing the value associated with the key/column
 
-                if (aValue.Contains(value))
+                if (aValue.ToLower().Contains(value.ToLower())) // compares key's value to search term
                 {
-                    jobs.Add(row);
+                    jobs.Add(row); // Adds job to Placeholder
                 }
             }
 
-            return jobs;
+            return jobs; // Return results
+        }
+
+        // part 2 create method FindByValue
+        public static List<Dictionary<string, string>> FindByValue(string searchterm)
+        {
+            LoadData();
+            List<Dictionary<string, string>> listings = new List<Dictionary<string, string>>();
+
+            foreach (Dictionary<string, string> jobpost in AllJobs)
+            {
+                //loop by jobpost !!!but won't give results if only searching for one word in a section e.g. web or developer or kansas!!!
+                foreach (KeyValuePair<string, string> row in jobpost)
+                {
+                    if (row.Value.ToLower().Contains(searchterm.ToLower()))
+                    {
+                        listings.Add(jobpost);
+                    }
+                }
+                
+
+                //loop by array column !!!there are duplicates!!!
+                //foreach (string section in jobpost.Values)
+                //{
+                //    if (section.Contains(searchterm))
+                //    {
+                //        listings.Add(jobpost);
+                //    }
+                //}
+
+                //loop by keyvaluepair !!!there are duplicates!!!
+                //foreach (KeyValuePair<string, string> section in jobpost)
+                //{ 
+                //    if (section.Value.Contains(searchterm))
+                //    {
+                //        listings.Add(jobpost);
+                //    }
+                //}
+            }
+            return listings;
         }
 
         /*
@@ -76,6 +118,7 @@ namespace TechJobsConsole
                 while (reader.Peek() >= 0)
                 {
                     string line = reader.ReadLine();
+                    //add toLower() after line?
                     string[] rowArrray = CSVRowToStringArray(line);
                     if (rowArrray.Length > 0)
                     {
@@ -107,6 +150,8 @@ namespace TechJobsConsole
          */
         private static string[] CSVRowToStringArray(string row, char fieldSeparator = ',', char stringSeparator = '\"')
         {
+            // make jobs lowercase ?
+            // string lowerrow = row.ToLower();
             bool isBetweenQuotes = false;
             StringBuilder valueBuilder = new StringBuilder();
             List<string> rowValues = new List<string>();
@@ -138,5 +183,7 @@ namespace TechJobsConsole
 
             return rowValues.ToArray();
         }
+
+
     }
 }
